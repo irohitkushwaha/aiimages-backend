@@ -1,0 +1,99 @@
+name: Deploy SocialHub Backend
+
+on:
+  push:
+    branches: [ main ]  # Change to your default branch if different
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOL
+          MONGODB_URI=${{ secrets.MONGODB_URI }}
+          CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
+          ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}
+          ACCESS_TOKEN_EXPIRE=${{ secrets.ACCESS_TOKEN_EXPIRE }}
+          REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}
+          REFRESH_TOKEN_EXPIRE=${{ secrets.REFRESH_TOKEN_EXPIRE }}
+          GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+          PORT=${{ secrets.PORT }}
+          SPACES_KEY=${{ secrets.SPACES_KEY }}
+          SPACES_SECRET=${{ secrets.SPACES_SECRET }}
+          ELASTICSEARCH_URL=${{ secrets.ELASTICSEARCH_URL }}
+          EOL
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DIGITALOCEAN_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.DIGITALOCEAN_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to DigitalOcean
+        run: |
+          # Compress backend files for faster transfer
+          tar -czf ../backend.tar.gz .
+
+          # Upload to server
+          scp ../backend.tar.gz ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/tmp/
+
+          # Deploy
+          ssh ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }} "
+            # Create deployment directory
+            mkdir -p /tmp/backend-deploy
+
+            # Extract files
+            tar -xzf /tmp/backend.tar.gz -C /tmp/backend-deploy
+
+            # Ensure target directory exists
+            sudo mkdir -p /var/www/backend
+
+            # Clear previous deployment
+            sudo rm -rf /var/www/backend/*
+
+            # Copy new files
+            sudo cp -r /tmp/backend-deploy/* /var/www/backend/
+
+            # Always use the new .env file from the deployment package
+            sudo cp /tmp/backend-deploy/.env /var/www/backend/.env
+
+            # Set proper permissions
+            sudo chmod 600 /var/www/backend/.env
+
+            # Change to application directory
+            cd /var/www/backend
+
+            # Install production dependencies
+            npm ci --production
+
+            # Stop existing application instance
+            pm2 stop social-hub-api || true
+            pm2 delete social-hub-api || true
+
+            # Start new application instance with correct entry point
+            pm2 start src/index.js --name social-hub-api
+
+            # Save PM2 configuration to survive reboots
+            pm2 save
+
+            # Clean up
+            rm -rf /tmp/backend-deploy
+            rm /tmp/backend.tar.gz
+          "
+      - name: Deployment status
+        run: echo "Deployment completed successfully!"
