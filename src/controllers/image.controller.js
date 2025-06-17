@@ -152,4 +152,5 @@ export const getImageWithSimilar = asyncHandler(async (req, res) => {
     )
   );
 });
+
 export default uploadImage;

@@ -1,4 +1,3 @@
-import { stringify } from "inngest/helpers/strings";
 import mongoose, { Schema } from "mongoose";
 
 const imageCategories = [
@@ -6,7 +5,7 @@ const imageCategories = [
   "Finance",
   "Education & Learning",
   "Technology",
-  "Festivals & occassions",
+  "Festivals & occasions",
   "Fashion & beauty",
   "Travel, Lifestyle & Nature",
   "Home Design & Real Estate",

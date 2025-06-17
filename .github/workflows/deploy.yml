@@ -32,9 +32,14 @@ jobs:
           GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
           PORT=${{ secrets.PORT }}
+          ELASTICSEARCH_URL=${{ secrets.ELASTICSEARCH_URL }}
           SPACES_KEY=${{ secrets.SPACES_KEY }}
           SPACES_SECRET=${{ secrets.SPACES_SECRET }}
-          ELASTICSEARCH_URL=${{ secrets.ELASTICSEARCH_URL }}
+          DO_SPACES_ENDPOINT=${{ secrets.DO_SPACES_ENDPOINT }}
+          DO_SPACES_REGION=${{ secrets.DO_SPACES_REGION }}
+          DO_SPACES_BUCKET_NAME=${{ secrets.DO_SPACES_BUCKET_NAME }}
+          DO_SPACES_CUSTOM_CDN_URL=${{ secrets.DO_SPACES_CUSTOM_CDN_URL }}
+          GOOGLE_SHEET_ID=${{ secrets.GOOGLE_SHEET_ID }}
           EOL
 
       - name: Setup SSH
