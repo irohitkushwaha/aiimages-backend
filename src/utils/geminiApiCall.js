@@ -6,7 +6,7 @@ import uploadToDOSpaces from "./digitalOceanSpace.js";
  * Function to generate structured content using Gemini 2.5 Flash Preview
  * @param {string} keyword - The keyword to generate content for
  * @param {string} apiKey - Your Gemini API key
- * @returns {Promise<Object>} - Structured response with Alt, Caption, ImgTitle, etc.
+ * @returns {Promise<Object>} - Struct-ured response with Alt, Caption, ImgTitle, etc.
  */
 async function generateStructuredContent(keyword) {
   const ai = new GoogleGenAI(process.env.GEMINI_API_KEY2);
