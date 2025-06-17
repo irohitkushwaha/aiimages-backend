@@ -40,6 +40,8 @@ jobs:
           DO_SPACES_BUCKET_NAME=${{ secrets.DO_SPACES_BUCKET_NAME }}
           DO_SPACES_CUSTOM_CDN_URL=${{ secrets.DO_SPACES_CUSTOM_CDN_URL }}
           GOOGLE_SHEET_ID=${{ secrets.GOOGLE_SHEET_ID }}
+          INNGEST_EVENT_KEY=${{ secrets.INNGEST_EVENT_KEY }}
+          INNGEST_SIGNING_KEY=${{ secrets.INNGEST_SIGNING_KEY }}
           EOL
 
       - name: Setup SSH

@@ -39,7 +39,7 @@ const ImageSchema = new Schema(
       type: String,
       trim: true,
       default: "",
-      index: true, // Good for searching images by their content title
+      index: true, // Good for searching images -by their content title
     },
     UploadedBy: {
       type: String,
