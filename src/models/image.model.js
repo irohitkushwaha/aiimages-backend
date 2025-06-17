@@ -96,7 +96,7 @@ const ImageSchema = new Schema(
 ImageSchema.pre("save", function (next) {
   if (this.ImgTitle && !this.PageSlug) {
     this.PageSlug = this.ImgTitle.toLowerCase()
-      .replace(/[^\w\s-]/g, "") // Remove non-word characters except spaces and hyphens
+      .replace(/[^\w\s-]/g, "") // Remove non-word characters except spaces and hyphens -
       .replace(/\s+/g, "-") // Replace spaces with hyphens
       .replace(/--+/g, "-") // Replace multiple hyphens with single - hyphen
       .trim();
