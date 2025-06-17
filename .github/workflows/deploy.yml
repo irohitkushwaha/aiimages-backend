@@ -1,4 +1,4 @@
-name: Deploy SocialHub Backend
+name: Deploy aiimages-backend
 
 on:
   push:
@@ -47,53 +47,53 @@ jobs:
       - name: Deploy to DigitalOcean
         run: |
           # Compress backend files for faster transfer
-          tar -czf ../backend.tar.gz .
+          tar -czf ../aiimages-backend.tar.gz .
 
           # Upload to server
-          scp ../backend.tar.gz ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/tmp/
+          scp ../aiimages-backend.tar.gz ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/tmp/
 
           # Deploy
           ssh ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }} "
             # Create deployment directory
-            mkdir -p /tmp/backend-deploy
+            mkdir -p /tmp/aiimages-backend-deploy
 
             # Extract files
-            tar -xzf /tmp/backend.tar.gz -C /tmp/backend-deploy
+            tar -xzf /tmp/aiimages-backend.tar.gz -C /tmp/aiimages-backend-deploy
 
             # Ensure target directory exists
-            sudo mkdir -p /var/www/backend
+            sudo mkdir -p /var/www/aiimages-backend
 
             # Clear previous deployment
-            sudo rm -rf /var/www/backend/*
+            sudo rm -rf /var/www/aiimages-backend/*
 
             # Copy new files
-            sudo cp -r /tmp/backend-deploy/* /var/www/backend/
+            sudo cp -r /tmp/aiimages-backend-deploy/* /var/www/aiimages-backend/
 
             # Always use the new .env file from the deployment package
-            sudo cp /tmp/backend-deploy/.env /var/www/backend/.env
+            sudo cp /tmp/aiimages-backend-deploy/.env /var/www/aiimages-backend/.env
 
             # Set proper permissions
-            sudo chmod 600 /var/www/backend/.env
+            sudo chmod 600 /var/www/aiimages-backend/.env
 
             # Change to application directory
-            cd /var/www/backend
+            cd /var/www/aiimages-backend
 
             # Install production dependencies
             npm ci --production
 
             # Stop existing application instance
-            pm2 stop social-hub-api || true
-            pm2 delete social-hub-api || true
+            pm2 stop aiimages-backend-service || true
+            pm2 delete aiimages-backend-service || true
 
             # Start new application instance with correct entry point
-            pm2 start src/index.js --name social-hub-api
+            pm2 start src/index.js --name aiimages-backend-service
 
             # Save PM2 configuration to survive reboots
             pm2 save
 
             # Clean up
-            rm -rf /tmp/backend-deploy
-            rm /tmp/backend.tar.gz
+            rm -rf /tmp/aiimages-backend-deploy
+            rm /tmp/aiimages-backend.tar.gz
           "
       - name: Deployment status
         run: echo "Deployment completed successfully!"
