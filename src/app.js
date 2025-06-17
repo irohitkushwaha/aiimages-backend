@@ -54,19 +54,15 @@ app.use("/api/user", userRouter);
 app.use("/api/image", imageRouter);
 
 console.log("🔧 Mounting Inngest middleware...");
-console.log("🔑 Event Key exists:", !!process.env.INNGEST_EVENT_KEY);
-console.log("🔑 Signing Key exists:", !!process.env.INNGEST_SIGNING_KEY);
-console.log("📦 Inngest client ID:", inngest.id);
-console.log("⚡ Function ID:", BulkAiImageGeneration.id);
-console.log("⚡ Function config:", {
-  id: BulkAiImageGeneration.id,
-  triggers: BulkAiImageGeneration.triggers,
-});
+console.log("🔑 Event Key exists:", process.env.INNGEST_EVENT_KEY);
+console.log("🔑 Signing Key exists:", process.env.INNGEST_SIGNING_KEY);
 
 app.use(
   "/api/inngest",
   (req, res, next) => {
     console.log(`🌐 Inngest endpoint hit: ${req.method} ${req.path}`);
+    console.log(`🔑 Event Key exists inside app use: ${process.env.INNGEST_EVENT_KEY}`);
+    console.log(`🔐 Signing Key exists inside app use: ${process.env.INNGEST_SIGNING_KEY}`);
     next();
   },
   serve({
