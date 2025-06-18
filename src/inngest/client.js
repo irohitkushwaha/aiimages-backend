@@ -2,7 +2,7 @@ import { Inngest } from "inngest";
 
 export const inngest = new Inngest({
   id: "ai-generated-images-automation",
-  eventKey: process.env.INNGEST_EVENT_KEY,
-  signingKey: process.env.INNGEST_SIGNING_KEY,
-  isDev: false
+  // eventKey: process.env.INNGEST_EVENT_KEY,
+  // signingKey: process.env.INNGEST_SIGNING_KEY,
+  // isDev: false
 });
