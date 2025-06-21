@@ -153,4 +153,25 @@ export const getImageWithSimilar = asyncHandler(async (req, res) => {
   );
 });
 
+import axios from "axios";
+import path from "path";
+
+export const downloadImage = asyncHandler(async (req, res) => {
+  const imageUrl = req.query.url;
+  if (!imageUrl) {
+    throw new ApiError(400, "Image URL is required");
+  }
+
+  // Get the file name from the URL
+  const fileName = path.basename(imageUrl.split("?")[0]);
+
+  // Stream the image from the remote URL
+  const response = await axios.get(imageUrl, { responseType: "stream" });
+
+  res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+  res.setHeader("Content-Type", response.headers["content-type"] || "application/octet-stream");
+
+  response.data.pipe(res);
+});
+
 export default uploadImage;

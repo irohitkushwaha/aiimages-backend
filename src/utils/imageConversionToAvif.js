@@ -1,4 +1,4 @@
-import sharp from 'sharp';
+import sharp from "sharp";
 
 /**
  * Converts an image buffer to AVIF format with lossless quality.
@@ -8,7 +8,7 @@ import sharp from 'sharp';
 export async function convertToAvif(imageBuffer) {
   try {
     const avifBuffer = await sharp(imageBuffer)
-      .avif({ lossless: true })
+      .avif({ quality: 80 })
       .toBuffer();
     return avifBuffer;
   } catch (error) {
