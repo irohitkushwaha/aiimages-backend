@@ -340,12 +340,6 @@ jobs:
           echo "  UserKnownHostsFile=/dev/null" >> ~/.ssh/config
           chmod 600 ~/.ssh/config
 
-      - name: Debug SSH connection
-        run: |
-          echo "Testing SSH connection with verbose output..."
-          echo "Trying to connect to: ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }}"
-          ssh -o ConnectTimeout=10 ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }} 'echo "SSH connection successful"'
-
       - name: Deploy to DigitalOcean
         run: |
           echo "Creating archive..."
