@@ -2,7 +2,7 @@ import sharp from "sharp";
 
 /**
  * Converts an image buffer to AVIF format with lossless quality.
- * @param {Buffer} imageBuffer The input image buffer.
+ * @param {Buffer} imageBuffer The input idmage buffer.
  * @returns {Promise<Buffer>} A promise that resolves with the AVIF image buffer.
  */
 export async function convertToAvif(imageBuffer) {
