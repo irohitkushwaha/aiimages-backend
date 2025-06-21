@@ -115,7 +115,7 @@ export const getImageWithSimilar = asyncHandler(async (req, res) => {
     mainImage.similarImages = similarIds;
   }
 
-  // Fetch similar images with selected fieldss
+  // Fetch similar images with selected fieldsss
   const similarImages = await Image.find(
     { _id: { $in: mainImage.similarImages } },
     // Only select required fields for similar images/
