@@ -193,7 +193,7 @@ const LoggedUsingGoogle = passport.use(
       callbackURL: "/api/user/auth/google/callback",
       scope: ['profile', 'email']
 
-      // passReqToCallback: true,
+      // passReqToCallback: true,f
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
