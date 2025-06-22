@@ -4,7 +4,7 @@ import ApiResponse from "../utils/apiResponse.js";
 import uploadToDOSpaces from "../utils/digitalOceanSpace.js";
 import Image from "../models/image.model.js";
 
-// Controller: Upload an image with metadata
+// Controller: Upload an image with metadasta
 const uploadImage = asyncHandler(async (req, res) => {
   // 1. Get user info
   const userId = req.user?._id;
