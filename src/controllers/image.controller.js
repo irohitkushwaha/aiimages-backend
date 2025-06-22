@@ -10,10 +10,10 @@ import path from "path";
 // Controller: Upload an image with metadata
 const uploadImage = asyncHandler(async (req, res) => {
   // 1. Get user info
-  // const userId = req.user?._id;
-  // if (!userId) {
-  //   throw new ApiError(401, "User authentication required");
-  // }
+  const userId = req.user?._id;
+  if (!userId) {
+    throw new ApiError(401, "User authentication required");
+  }
 
   // 2. Get file path
   const imageFile = req.files?.Image?.[0]?.path;
