@@ -3,14 +3,17 @@ import ApiError from "../utils/apiError.js";
 import ApiResponse from "../utils/apiResponse.js";
 import uploadToDOSpaces from "../utils/digitalOceanSpace.js";
 import Image from "../models/image.model.js";
+import { convertToAvif } from "../utils/imageConversionToAvif.js";
+import fs from "fs";
+import path from "path";
 
-// Controller: Upload an image with metadasta
+// Controller: Upload an image with metadata
 const uploadImage = asyncHandler(async (req, res) => {
   // 1. Get user info
-  const userId = req.user?._id;
-  if (!userId) {
-    throw new ApiError(401, "User authentication required");
-  }
+  // const userId = req.user?._id;
+  // if (!userId) {
+  //   throw new ApiError(401, "User authentication required");
+  // }
 
   // 2. Get file path
   const imageFile = req.files?.Image?.[0]?.path;
@@ -18,8 +21,17 @@ const uploadImage = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Image file is required");
   }
 
+  const originalName = req.files?.Image?.[0]?.originalname;
+
+  const baseName = path.parse(originalName).name;
+  const avifFileName = `${baseName}.avif`;
+
+  const imageBuffer = fs.readFileSync(imageFile);
+  const avifBuffer = await convertToAvif(imageBuffer);
+
   // 3. Upload to DigitalOcean Spaces
-  const uploadResult = await uploadToDOSpaces(imageFile);
+  const uploadResult = await uploadToDOSpaces(avifBuffer, avifFileName);
+
   if (!uploadResult || !uploadResult.url) {
     throw new ApiError(500, "Error uploading image to DigitalOcean Spaces");
   }
@@ -50,7 +62,9 @@ const uploadImage = asyncHandler(async (req, res) => {
     UploadedBy: "User",
   });
 
-  res.status(201).json(new ApiResponse(imageDoc, 201, "Image uploaded successfully"));
+  res
+    .status(201)
+    .json(new ApiResponse(imageDoc, 201, "Image uploaded successfully"));
 });
 
 // Controller: Get images by page
@@ -72,7 +86,9 @@ export const getHomepageImages = asyncHandler(async (req, res) => {
       .limit(batchSize);
   }
 
-  res.status(200).json(new ApiResponse(images, 200, "Images fetched successfully"));
+  res
+    .status(200)
+    .json(new ApiResponse(images, 200, "Images fetched successfully"));
 });
 
 // Controller: Get images by a single category (max 100)
@@ -88,13 +104,15 @@ export const getImagesByCategory = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 })
     .limit(100);
 
-  res.status(200).json(new ApiResponse(images, 200, "Images fetched by category"));
+  res
+    .status(200)
+    .json(new ApiResponse(images, 200, "Images fetched by category"));
 });
 
 // Controller: Get image by slug with consistent similar images
 export const getImageWithSimilar = asyncHandler(async (req, res) => {
-  const { slug } = req.params;
-  if (!slug) throw new ApiError(400, "Slug is required");
+  const { slug } = req.query;
+  if (!slug) throw new ApiError(400, "Slug is required from backend");
 
   // Find the main image by slug
   const mainImage = await Image.findOne({ PageSlug: slug });
@@ -105,11 +123,17 @@ export const getImageWithSimilar = asyncHandler(async (req, res) => {
     const similar = await Image.aggregate([
       { $match: { Category: mainImage.Category, _id: { $ne: mainImage._id } } },
       { $sample: { size: 20 } },
-      { $project: { _id: 1 } }
+      { $project: { _id: 1 } },
     ]);
-    const similarIds = similar.map(img => img._id);
+    const similarIds = similar.map((img) => img._id);
     await Image.updateOne(
-      { _id: mainImage._id, $or: [ { similarImages: { $exists: false } }, { similarImages: { $size: 0 } } ] },
+      {
+        _id: mainImage._id,
+        $or: [
+          { similarImages: { $exists: false } },
+          { similarImages: { $size: 0 } },
+        ],
+      },
       { $set: { similarImages: similarIds } }
     );
     mainImage.similarImages = similarIds;
@@ -125,7 +149,7 @@ export const getImageWithSimilar = asyncHandler(async (req, res) => {
       Caption: 1,
       ImgTitle: 1,
       Category: 1,
-      PageSlug: 1
+      PageSlug: 1,
     }
   );
 
@@ -138,14 +162,14 @@ export const getImageWithSimilar = asyncHandler(async (req, res) => {
     Category: mainImage.Category,
     PageTitle: mainImage.PageTitle,
     PageDescription: mainImage.PageDescription,
-    Prompt: mainImage.Prompt
+    Prompt: mainImage.Prompt,
   };
 
   res.status(200).json(
     new ApiResponse(
       {
         mainImage: mainImageData,
-        similarImages
+        similarImages,
       },
       200,
       "Main image and similar images fetched successfully"
@@ -154,7 +178,6 @@ export const getImageWithSimilar = asyncHandler(async (req, res) => {
 });
 
 import axios from "axios";
-import path from "path";
 
 export const downloadImage = asyncHandler(async (req, res) => {
   const imageUrl = req.query.url;
@@ -169,9 +192,20 @@ export const downloadImage = asyncHandler(async (req, res) => {
   const response = await axios.get(imageUrl, { responseType: "stream" });
 
   res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
-  res.setHeader("Content-Type", response.headers["content-type"] || "application/octet-stream");
+  res.setHeader(
+    "Content-Type",
+    response.headers["content-type"] || "application/octet-stream"
+  );
 
   response.data.pipe(res);
+});
+
+
+
+// Controller: Get all slugs with updatedAt
+export const getAllSlugsWithUpdatedAt = asyncHandler(async (req, res) => {
+  const slugs = await Image.find({}, { PageSlug: 1, Category: 1, updatedAt: 1, _id: 0 });
+  res.status(200).json(new ApiResponse(slugs, 200, "Slugs with updatedAt fetched successfully"));
 });
 
 export default uploadImage;

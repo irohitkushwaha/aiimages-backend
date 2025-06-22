@@ -9,7 +9,7 @@ import uploadToDOSpaces from "./digitalOceanSpace.js";
  * @returns {Promise<Object>} - Struct-ured response with Alt, Caption, ImgTitle, etc.
  */
 async function generateStructuredContent(keyword) {
-  const ai = new GoogleGenAI(process.env.GEMINI_API_KEY2);
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY2 });
 
   try {
     const response = await ai.models.generateContent({
@@ -74,7 +74,7 @@ async function generateStructuredContent(keyword) {
  * @returns {Promise<Object>} - Response with generated image data
  */
 async function generateImage(prompt, keyword) {
-  const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
   try {
     const response = await ai.models.generateContent({
