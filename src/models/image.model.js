@@ -80,8 +80,11 @@ const ImageSchema = new Schema(
       type: String,
       trim: true,
     },
-  },
-  {
+    indexStatus: {
+      type: String,
+      enum: ["success", "failed"],
+      index: true,
+    },
     similarImages: [
       {
         type: Schema.Types.ObjectId,
