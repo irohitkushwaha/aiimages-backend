@@ -2,17 +2,21 @@
 import mongoose from 'mongoose';
 import Image from './models/image.model.js';
 import { google } from 'googleapis';
+import serviceAccount from './service-account-key.json' assert { type: 'json' };
+import path from 'path';
+
 
 // 1. Connect to MongoDB
 await mongoose.connect('mongodb://%40aigeneratedimagessUSer:%40AIgEnERat2415632Ed%23Ima356426gess%40%40@127.0.0.1:27017/aigeneratedimagess?authSource=aigeneratedimagess');
 
 // 2. Google Indexing API Setup
 const SCOPES = ['https://www.googleapis.com/auth/indexing'];
-const GOOGLE_APPLICATION_CREDENTIALS = './service-account-key.json'; // Update this path
+const GOOGLE_APPLICATION_CREDENTIALS = serviceAccount; // Update this path
+
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: GOOGLE_APPLICATION_CREDENTIALS,
-  scopes: SCOPES,
+    credentials: GOOGLE_APPLICATION_CREDENTIALS,
+    scopes: SCOPES,
 });
 
 const indexing = google.indexing({ version: 'v3', auth });
