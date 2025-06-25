@@ -27,9 +27,40 @@ const images = await Image.find({
 
 console.log(`Found ${images.length} pages to index`);
 
+
+const categoryMap = [
+    { fullCategory: "Business", shortCategory: "business" },
+    { fullCategory: "Finance", shortCategory: "finance" },
+    { fullCategory: "Education & Learning", shortCategory: "education" },
+    { fullCategory: "Technology", shortCategory: "technology" },
+    { fullCategory: "Festivals & occasions", shortCategory: "festivals" },
+    { fullCategory: "Fashion & beauty", shortCategory: "fashion" },
+    { fullCategory: "Travel, Lifestyle & Nature", shortCategory: "nature" },
+    {
+      fullCategory: "Home Design & Real Estate",
+      shortCategory: "real-estate",
+    },
+    { fullCategory: "Food & Drink", shortCategory: "food" },
+  ];
+
+
+  function getShortCategory(fullCategory) {
+    const found = categoryMap.find((c) => c.fullCategory === fullCategory);
+    return found ? found.shortCategory : null;
+  }
+
 // 4. Process each URL
 for (const img of images) {
-  const url = `https://aigeneratedimagess.com/${img.PageSlug}`; // Update your domain
+
+    const shortCategory = getShortCategory(img.Category);
+
+    if (!shortCategory) {
+        console.error(`❌ Unknown category for image ${img._id}, skipping...`);
+        continue;
+      }
+
+
+  const url = `https://aigeneratedimagess.com/${shortCategory}/${img.PageSlug}`; // Update your domain
   
   try {
     await indexing.urlNotifications.publish({
