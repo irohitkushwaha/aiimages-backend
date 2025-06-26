@@ -67,12 +67,14 @@ for (const img of images) {
   const url = `https://aigeneratedimagess.com/${shortCategory}/${img.PageSlug}`; // Update your domain
   
   try {
-    await indexing.urlNotifications.publish({
+    const indexResult = await indexing.urlNotifications.publish({
       requestBody: {
         url,
         type: 'URL_UPDATED',
       },
     });
+
+    console.log("indexResult is", indexResult);
     
     // Mark as success
     img.indexStatus = 'success';
