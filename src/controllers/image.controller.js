@@ -6,6 +6,7 @@ import Image from "../models/image.model.js";
 import { convertToAvif } from "../utils/imageConversionToAvif.js";
 import fs from "fs";
 import path from "path";
+import {generateImageWithImage} from "../utils/generategemini.js"
 
 // Controller: Upload an image with metadata
 const uploadImage = asyncHandler(async (req, res) => {
@@ -200,12 +201,64 @@ export const downloadImage = asyncHandler(async (req, res) => {
   response.data.pipe(res);
 });
 
-
-
 // Controller: Get all slugs with updatedAt
 export const getAllSlugsWithUpdatedAt = asyncHandler(async (req, res) => {
-  const slugs = await Image.find({}, { PageSlug: 1, Category: 1, updatedAt: 1, _id: 0 });
-  res.status(200).json(new ApiResponse(slugs, 200, "Slugs with updatedAt fetched successfully"));
+  const slugs = await Image.find(
+    {},
+    { PageSlug: 1, Category: 1, updatedAt: 1, _id: 0 }
+  );
+  res
+    .status(200)
+    .json(
+      new ApiResponse(slugs, 200, "Slugs with updatedAt fetched successfully")
+    );
+});
+
+export const generateImage = asyncHandler(async (req, res) => {
+  const { prompt } = req.body;
+  const uploadedFile = req.file;
+
+  if (!uploadedFile) {
+    return res.status(400).json({
+      success: false,
+      error: "No image file uploaded",
+    });
+  }
+
+  if (!prompt) {
+    return res.status(400).json({
+      success: false,
+      error: "Prompt is required",
+    });
+  }
+
+  // Read the uploaded file from disk
+  const filePath = path.join("./public/temp", uploadedFile.filename);
+  const imageBuffer = fs.readFileSync(filePath);
+
+  // Create image object with mime type
+  const inputImage = {
+    data: imageBuffer.toString("base64"),
+    mimeType: uploadedFile.mimetype,
+  };
+
+  // Generate new image using your function
+  const result = await generateImageWithImage(prompt, inputImage);
+
+  // Clean up: Delete the temporary file
+  fs.unlinkSync(filePath);
+
+  // Send response to frontend
+  res.status(201).json(
+    new ApiResponse(
+      {
+        imageBase64: `data:${result.data.mimeType};base64,${result.data.base64}`,
+        mimeType: result.data.mimeType,
+      },
+      201,
+      "Image generated successfully"
+    )
+  );
 });
 
 export default uploadImage;

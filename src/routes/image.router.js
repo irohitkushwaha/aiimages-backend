@@ -1,8 +1,14 @@
 import { Router } from "express";
 import upload from "../middlewares/file.middleware.js";
 import VerifyJWT from "../middlewares/verifyjwt.middleware.js";
-import uploadImage from "../controllers/image.controller.js";
-import { getHomepageImages, getImageWithSimilar, getImagesByCategory, downloadImage} from "../controllers/image.controller.js";
+import uploadImage, { generateImage } from "../controllers/image.controller.js";
+import {
+  getHomepageImages,
+  getImageWithSimilar,
+  getImagesByCategory,
+  downloadImage,
+  generateImage,
+} from "../controllers/image.controller.js";
 import { getAllSlugsWithUpdatedAt } from "../controllers/image.controller.js";
 
 const router = Router();
@@ -16,6 +22,13 @@ router.route("/upload").post(
   uploadImage
 );
 
+router.route("/generate").post(
+  // VerifyJWT,
+  upload.single("image"),
+
+  generateImage
+);
+
 router.route("/homepage-images").get(getHomepageImages);
 
 router.route("/images-by-category").get(getImagesByCategory);
@@ -26,6 +39,4 @@ router.route("/download").get(downloadImage);
 
 router.get("/slugs", getAllSlugsWithUpdatedAt);
 
-
-
-export default router
+export default router;
