@@ -1,4 +1,5 @@
-import { GoogleGenAI, Modality } from "@google/generative-ai";
+import { GoogleGenAI, Modality } from "@google/genai";
+
 async function generateImageWithImage(prompt, inputImage) {
 
     console.log("promp received is", prompt, "and input image is", inputImage)
