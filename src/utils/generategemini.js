@@ -1,4 +1,8 @@
+import { GoogleGenAI, Modality } from "@google/generative-ai";
 async function generateImageWithImage(prompt, inputImage) {
+
+    console.log("promp received is", prompt, "and input image is", inputImage)
+
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     try {
       // Prepare contents with both text and image
@@ -24,6 +28,8 @@ async function generateImageWithImage(prompt, inputImage) {
           responseModalities: [Modality.TEXT, Modality.IMAGE],
         },
       });
+
+      console.log("response received is", response)
       
       // Extract only image data from the response
       let outputImageData = null;
