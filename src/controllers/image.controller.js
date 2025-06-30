@@ -245,10 +245,12 @@ export const generateImage = asyncHandler(async (req, res) => {
   // Generate new image using your function
   const result = await generateImageWithImage(prompt, inputImage);
 
+  console.log("result is rrrrrrrrresykt ", result)
+
   // Clean up: Delete the temporary file
   fs.unlinkSync(filePath);
 
-  console.log(`final conssssssssss is   data:${result.data.mimeType};base64,${result.data.base64}`)
+  console.log(`final console log before sending is   data:${result.data.mimeType};base64,${result.data.base64}`)
 
   // Send response to frontend
   res.status(201).json(

@@ -43,12 +43,12 @@ async function generateImageWithImage(prompt, inputImage) {
         }
       }
       
-      console.log(
-        "inside the gemini api call after image gen with image api call, the mimetype is",
-        mimeType,
-        "and image data is",
-        outputImageData
-      );
+    //   console.log(
+    //     "inside the gemini api call after image gen with image api call, the mimetype is",
+    //     mimeType,
+    //     "and image data is",
+    //     outputImageData
+    //   );
       
       if (!outputImageData) {
         throw new Error("No image data found in Gemini API response");
