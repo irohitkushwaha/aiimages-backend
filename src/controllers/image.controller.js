@@ -248,6 +248,8 @@ export const generateImage = asyncHandler(async (req, res) => {
   // Clean up: Delete the temporary file
   fs.unlinkSync(filePath);
 
+  console.log(`final conssssssssss is   data:${result.data.mimeType};base64,${result.data.base64}`)
+
   // Send response to frontend
   res.status(201).json(
     new ApiResponse(
