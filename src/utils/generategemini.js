@@ -63,3 +63,6 @@ async function generateImageWithImage(prompt, inputImage) {
       );
     }
   }
+
+
+  export {generateImageWithImage}
