@@ -1,7 +1,7 @@
 import { Router } from "express";
 import upload from "../middlewares/file.middleware.js";
 import VerifyJWT from "../middlewares/verifyjwt.middleware.js";
-import uploadImage, { generateImage } from "../controllers/image.controller.js";
+import uploadImage from "../controllers/image.controller.js";
 import {
   getHomepageImages,
   getImageWithSimilar,
