@@ -55,62 +55,202 @@ jobs:
 
       - name: Setup SSH
         run: |
+          # Debug: Show current working directory
+          echo "Current directory: $(pwd)"
+          
+          # Debug: List existing files
+          ls -la
+          
+          # Debug: Verify SSH directory creation
+          echo "Creating SSH directory..."
           mkdir -p ~/.ssh
+          ls -la ~/.ssh
+          
+          # Debug: Verify SSH key
+          echo "Writing SSH key..."
           echo "${{ secrets.DIGITALOCEAN_SSH_KEY }}" > ~/.ssh/id_rsa
+          ls -la ~/.ssh
+          
+          # Debug: Show SSH key permissions
+          echo "Setting permissions..."
           chmod 600 ~/.ssh/id_rsa
+          ls -la ~/.ssh
+          
+          # Debug: Show host key scanning
+          echo "Scanning host keys..."
           ssh-keyscan -H ${{ secrets.DIGITALOCEAN_HOST }} >> ~/.ssh/known_hosts
+          ls -la ~/.ssh
+          
+          # Debug: Show known_hosts content
+          cat ~/.ssh/known_hosts
+          
+          # Debug: Test SSH connection with verbose output
+          echo "Testing SSH connection..."
+          ssh -v -o StrictHostKeyChecking=no ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }} "echo SSH test"
 
-      - name: Deploy to DigitalOcean
+
+
+
+          
+
+      - name: Deploy to GCP
         run: |
-          # Compress backend files for faster transfer
-          tar -czf ../aiimages-backend.tar.gz .
-
-          # Upload to server
-          scp ../aiimages-backend.tar.gz ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/tmp/
-
-          # Deploy
-          ssh ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }} "
+          # Debug: Show current directory and files
+          echo "Current directory: $(pwd)"
+          ls -la
+          
+          # Debug: Show contents of tar.gz file
+          echo "Checking tar.gz file..."
+          tar -tf ../aiimages-backend.tar.gz
+          
+          # Debug: Show SCP command with verbose output
+          echo "Running SCP command..."
+          scp -v ../aiimages-backend.tar.gz rohitkushwaha@${{ secrets.DIGITALOCEAN_HOST }}:/tmp/
+          
+          # Debug: Show SSH deployment command with verbose output
+          echo "Running deployment..."
+          ssh -v rohitkushwaha@${{ secrets.DIGITALOCEAN_HOST }} "
+            echo 'Starting deployment...'
+            whoami
+            pwd
+            ls -la
+            
+            # Debug: Show current user permissions
+            id -u
+            groups
+            
+            # Debug: Show sudo permissions
+            sudo -l
+            
             # Create deployment directory
+            echo 'Creating deployment directory...'
             mkdir -p /tmp/aiimages-backend-deploy
-
+            ls -la /tmp
+            
             # Extract files
+            echo 'Extracting files...'
             tar -xzf /tmp/aiimages-backend.tar.gz -C /tmp/aiimages-backend-deploy
-
+            ls -la /tmp/aiimages-backend-deploy
+            
+            # Debug: Show target directory permissions
+            echo 'Checking target directory...'
+            sudo ls -la /var/www/aiimages-backend
+            
             # Ensure target directory exists
+            echo 'Creating target directory...'
             sudo mkdir -p /var/www/aiimages-backend
-
+            sudo ls -la /var/www/aiimages-backend
+            
             # Clear previous deployment
+            echo 'Clearing previous deployment...'
             sudo rm -rf /var/www/aiimages-backend/*
-
+            
             # Copy new files
+            echo 'Copying new files...'
             sudo cp -r /tmp/aiimages-backend-deploy/* /var/www/aiimages-backend/
-
-            # Always use the new .env file from the deployment package
+            sudo ls -la /var/www/aiimages-backend
+            
+            # Copy .env file
+            echo 'Copying .env file...'
             sudo cp /tmp/aiimages-backend-deploy/.env /var/www/aiimages-backend/.env
-
+            sudo ls -la /var/www/aiimages-backend/.env
+            
             # Set proper permissions
+            echo 'Setting permissions...'
             sudo chmod 600 /var/www/aiimages-backend/.env
-
+            
             # Change to application directory
+            echo 'Changing to application directory...'
             cd /var/www/aiimages-backend
-
+            pwd
+            ls -la
+            
+            # Debug: Show npm version
+            echo 'Checking npm version...'
+            npm --version
+            
             # Install production dependencies
+            echo 'Installing dependencies...'
             npm ci --production
-
+            
+            # Debug: Show pm2 version
+            echo 'Checking pm2 version...'
+            pm2 --version
+            
             # Stop existing application instance
-            pm2 stop aiimages-backend-service || true
-            pm2 delete aiimages-backend-service || true
-
-            # Start new application instance with correct entry point
-            pm2 start src/index.js --name aiimages-backend-service
-
-            # Save PM2 configuration to survive reboots
-            pm2 save
-
+            echo 'Stopping existing application...'
+            sudo pm2 stop aiimages-backend-service || true
+            sudo pm2 delete aiimages-backend-service || true
+            
+            # Start new application instance
+            echo 'Starting application...'
+            sudo pm2 start src/index.js --name aiimages-backend-service
+            
+            # Save PM2 configuration
+            echo 'Saving PM2 configuration...'
+            sudo pm2 save
+            
             # Clean up
+            echo 'Cleaning up...'
             rm -rf /tmp/aiimages-backend-deploy
             rm /tmp/aiimages-backend.tar.gz
+            
+            echo 'Deployment completed successfully!'
           "
+
+
+
+      # - name: Deploy to DigitalOcean
+      #   run: |
+      #     # Compress backend files for faster transfer
+      #     tar -czf ../aiimages-backend.tar.gz .
+
+      #     # Upload to server
+      #     scp ../aiimages-backend.tar.gz ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/tmp/
+
+      #     # Deploy
+      #     ssh ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }} "
+      #       # Create deployment directory
+      #       mkdir -p /tmp/aiimages-backend-deploy
+
+      #       # Extract files
+      #       tar -xzf /tmp/aiimages-backend.tar.gz -C /tmp/aiimages-backend-deploy
+
+      #       # Ensure target directory exists
+      #       sudo mkdir -p /var/www/aiimages-backend
+
+      #       # Clear previous deployment
+      #       sudo rm -rf /var/www/aiimages-backend/*
+
+      #       # Copy new files
+      #       sudo cp -r /tmp/aiimages-backend-deploy/* /var/www/aiimages-backend/
+
+      #       # Always use the new .env file from the deployment package
+      #       sudo cp /tmp/aiimages-backend-deploy/.env /var/www/aiimages-backend/.env
+
+      #       # Set proper permissions
+      #       sudo chmod 600 /var/www/aiimages-backend/.env
+
+      #       # Change to application directory
+      #       cd /var/www/aiimages-backend
+
+      #       # Install production dependencies
+      #       npm ci --production
+
+      #       # Stop existing application instance
+      #       pm2 stop aiimages-backend-service || true
+      #       pm2 delete aiimages-backend-service || true
+
+      #       # Start new application instance with correct entry point
+      #       pm2 start src/index.js --name aiimages-backend-service
+
+      #       # Save PM2 configuration to survive reboots
+      #       pm2 save
+
+      #       # Clean up
+      #       rm -rf /tmp/aiimages-backend-deploy
+      #       rm /tmp/aiimages-backend.tar.gz
+      #     "
       - name: Deployment status
         run: echo "Deployment completed successfully!"
 

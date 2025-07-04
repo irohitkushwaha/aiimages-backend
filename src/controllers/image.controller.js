@@ -236,7 +236,7 @@ export const generateImage = asyncHandler(async (req, res) => {
   const filePath = path.join("./public/temp", uploadedFile.filename);
   const imageBuffer = fs.readFileSync(filePath);
 
-  // Create image object with mime typee
+  // Create image object with mime typeee
   const inputImage = {
     data: imageBuffer.toString("base64"),
     mimeType: uploadedFile.mimetype,
