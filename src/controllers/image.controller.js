@@ -247,7 +247,7 @@ export const generateImage = asyncHandler(async (req, res) => {
 
   console.log("result is rrrrrrrrresykt ", result)
 
-  // Clean up: Delete the temporary file
+  // Clean up: Delete the temporary fileg
   fs.unlinkSync(filePath);
 
   console.log(`final console log before sending is   data:${result.data.mimeType};base64,${result.data.base64}`)
