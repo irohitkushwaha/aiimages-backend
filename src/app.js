@@ -8,6 +8,8 @@ import imageRouter from "./routes/image.router.js";
 import { serve } from "inngest/express";
 import { inngest } from "./inngest/client.js";
 import { BulkAiImageGeneration } from "./inngest/functions/image-generation.js";
+// import pinterestRouter from "./routes/pinterest.router.js";
+// import { startPinterestCron } from "./utils/pinterest.service.js";
 // import { Client } from "@elastic/elasticsearch";
 // import {
 //   createIndexes,
@@ -52,6 +54,8 @@ const server = http.createServer(app);
 
 app.use("/api/user", userRouter);
 app.use("/api/image", imageRouter);
+app.use("/api/pinterest", pinterestRouter); // Add Pinterest routes
+
 
 app.use(
   "/api/inngest",
@@ -95,5 +99,9 @@ app.use((err, req, res, next) => {
     error: err.error || [],
   });
 });
+
+
+// Start Pinterest cron job
+// startPinterestCron();
 
 export { server }; //client also export

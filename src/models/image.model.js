@@ -91,6 +91,15 @@ const ImageSchema = new Schema(
         ref: "Image",
       },
     ],
+    // isPinnedToPinterest: {
+    //   type: Boolean,
+    //   default: false,
+    //   index: true,
+    // },
+    // pinnedAt: {
+    //   type: Date,
+    //   index: true,
+    // },
   },
   { timestamps: true }
 );
