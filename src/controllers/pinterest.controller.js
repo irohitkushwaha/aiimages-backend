@@ -13,7 +13,7 @@
 //   'Food & Drink'
 // ];
 
-// // Pinterest Board IDs mapping (you need to get these from Pinterest)
+// // Pinterest Board IDs mapping (you need to get these from Pinterest))
 // const boardMapping = {
 //   'Business': "1056797937500588349",
 //   'Finance': "1056797937500600132",
