@@ -1,20 +1,165 @@
+# name: Deploy aiimages-backend
+
+# on:
+#   push:
+#     branches: [main] # Change to your default branch if different
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: "18"
+
+#       - name: Install dependencies
+#         run: npm ci
+
+#       - name: Create .env file
+#         run: |
+#           cat > .env << EOL
+#           MONGODB_URI=${{ secrets.MONGODB_URI }}
+#           CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}
+#           ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}
+#           ACCESS_TOKEN_EXPIRE=${{ secrets.ACCESS_TOKEN_EXPIRE }}
+#           REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}
+#           REFRESH_TOKEN_EXPIRE=${{ secrets.REFRESH_TOKEN_EXPIRE }}
+#           GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+#           GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+#           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+#           GEMINI_API_KEY2=${{ secrets.GEMINI_API_KEY2 }}
+#           GEMINI_API_KEY3=${{ secrets.GEMINI_API_KEY3 }}  
+#           GEMINI_API_KEY4=${{ secrets.GEMINI_API_KEY4 }}
+#           GEMINI_API_KEY5=${{ secrets.GEMINI_API_KEY5 }}
+#           GEMINI_API_KEY6=${{ secrets.GEMINI_API_KEY6 }}
+#           GEMINI_API_KEY7=${{ secrets.GEMINI_API_KEY7 }}
+#           GEMINI_API_KEY8=${{ secrets.GEMINI_API_KEY8 }}
+#           GEMINI_API_KEY9=${{ secrets.GEMINI_API_KEY9 }}
+#           GEMINI_API_KEY10=${{ secrets.GEMINI_API_KEY10 }}
+#           PORT=${{ secrets.PORT }}
+#           ELASTICSEARCH_URL=${{ secrets.ELASTICSEARCH_URL }}
+#           SPACES_KEY=${{ secrets.SPACES_KEY }}
+#           SPACES_SECRET=${{ secrets.SPACES_SECRET }}
+#           DO_SPACES_ENDPOINT=${{ secrets.DO_SPACES_ENDPOINT }}
+#           DO_SPACES_REGION=${{ secrets.DO_SPACES_REGION }}
+#           DO_SPACES_BUCKET_NAME=${{ secrets.DO_SPACES_BUCKET_NAME }}
+#           DO_SPACES_CUSTOM_CDN_URL=${{ secrets.DO_SPACES_CUSTOM_CDN_URL }}
+#           GOOGLE_SHEET_ID=${{ secrets.GOOGLE_SHEET_ID }}
+#           INNGEST_EVENT_KEY=${{ secrets.INNGEST_EVENT_KEY }}
+#           INNGEST_SIGNING_KEY=${{ secrets.INNGEST_SIGNING_KEY }}
+#           EOL
+
+#       - name: Setup SSH
+#         run: |
+#           # Debug: Show current working directory
+#           echo "Current directory: $(pwd)"
+
+#           # Debug: List existing files
+#           ls -la
+
+#           # Debug: Verify SSH directory creation
+#           echo "Creating SSH directory..."
+#           mkdir -p ~/.ssh
+#           ls -la ~/.ssh
+
+#           # Debug: Verify SSH key
+#           echo "Writing SSH key..."
+#           echo "${{ secrets.DIGITALOCEAN_SSH_KEY }}" > ~/.ssh/id_rsa
+#           ls -la ~/.ssh
+
+#           # Debug: Show SSH key permissions
+#           echo "Setting permissions..."
+#           chmod 600 ~/.ssh/id_rsa
+#           ls -la ~/.ssh
+
+#           # Debug: Show host key scanning
+#           echo "Scanning host keys..."
+#           ssh-keyscan -H ${{ secrets.DIGITALOCEAN_HOST }} >> ~/.ssh/known_hosts
+#           ls -la ~/.ssh
+
+#           # Debug: Show known_hosts content
+#           cat ~/.ssh/known_hosts
+
+#           # Debug: Test SSH connection with verbose output
+#           echo "Testing SSH connection..."
+#           ssh -v -o StrictHostKeyChecking=no ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }} "echo SSH test"
+
+#       - name: Deploy to DigitalOcean
+#         run: |
+#           # Compress backend files for faster transfer
+#           tar -czf ../aiimages-backend.tar.gz .
+
+#           # Upload to server
+#           scp ../aiimages-backend.tar.gz ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/tmp/
+
+#           # Deploy
+#           ssh ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }} "
+#             # Create deployment directory
+#             mkdir -p /tmp/aiimages-backend-deploy
+
+#             # Extract files
+#             tar -xzf /tmp/aiimages-backend.tar.gz -C /tmp/aiimages-backend-deploy
+
+#             # Ensure target directory exists
+#             sudo mkdir -p /var/www/aiimages-backend
+
+#             # Clear previous deployment
+#             sudo rm -rf /var/www/aiimages-backend/*
+
+#             # Copy new files
+#             sudo cp -r /tmp/aiimages-backend-deploy/* /var/www/aiimages-backend/
+
+#             # Always use the new .env file from the deployment package
+#             sudo cp /tmp/aiimages-backend-deploy/.env /var/www/aiimages-backend/.env
+
+#             # Set proper permissions
+#             sudo chmod 600 /var/www/aiimages-backend/.env
+
+#             # Change to application directory
+#             cd /var/www/aiimages-backend
+
+#             # Install production dependencies
+#             npm ci --production
+
+#             # Stop existing application instance
+#             pm2 stop aiimages-backend-service || true
+#             pm2 delete aiimages-backend-service || true
+
+#             # Start new application instance with correct entry point
+#             pm2 start src/index.js --name aiimages-backend-service
+
+#             # Save PM2 configuration to survive reboots
+#             pm2 save
+
+#             # Clean up
+#             rm -rf /tmp/aiimages-backend-deploy
+#             rm /tmp/aiimages-backend.tar.gz
+#           "
+#       - name: Deployment status
+#         run: echo "Deployment completed successfully!"
+
 name: Deploy aiimages-backend
 
 on:
   push:
-    branches: [main] # Change to your default branch if different
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -53,91 +198,195 @@ jobs:
           INNGEST_SIGNING_KEY=${{ secrets.INNGEST_SIGNING_KEY }}
           EOL
 
-      - name: Setup SSH
+      - name: ✅ Verify Environment File
         run: |
-          # Debug: Show current working directory
-          echo "Current directory: $(pwd)"
+          echo "=== ENVIRONMENT FILE VERIFICATION ==="
+          if [ -f ".env" ]; then
+            echo "✅ .env file created successfully"
+            echo "Environment variables count: $(cat .env | wc -l)"
+          else
+            echo "❌ .env file missing!"
+            exit 1
+          fi
 
-          # Debug: List existing files
-          ls -la
+      - name: 🔍 Pre-deployment Connection Test
+        run: |
+          echo "=== CONNECTION TEST ==="
+          echo "Testing connectivity to ${{ secrets.DIGITALOCEAN_HOST }}:22"
+          nc -zv ${{ secrets.DIGITALOCEAN_HOST }} 22 || (echo "❌ SSH port not reachable" && exit 1)
+          echo "✅ SSH port is reachable"
 
-          # Debug: Verify SSH directory creation
-          echo "Creating SSH directory..."
+      - name: Add Server Host Key to Known Hosts
+        run: |
           mkdir -p ~/.ssh
-          ls -la ~/.ssh
-
-          # Debug: Verify SSH key
-          echo "Writing SSH key..."
-          echo "${{ secrets.DIGITALOCEAN_SSH_KEY }}" > ~/.ssh/id_rsa
-          ls -la ~/.ssh
-
-          # Debug: Show SSH key permissions
-          echo "Setting permissions..."
-          chmod 600 ~/.ssh/id_rsa
-          ls -la ~/.ssh
-
-          # Debug: Show host key scanning
-          echo "Scanning host keys..."
           ssh-keyscan -H ${{ secrets.DIGITALOCEAN_HOST }} >> ~/.ssh/known_hosts
-          ls -la ~/.ssh
 
-          # Debug: Show known_hosts content
-          cat ~/.ssh/known_hosts
-
-          # Debug: Test SSH connection with verbose output
-          echo "Testing SSH connection..."
-          ssh -v -o StrictHostKeyChecking=no ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }} "echo SSH test"
-
-      - name: Deploy to DigitalOcean
-        run: |
-          # Compress backend files for faster transfer
-          tar -czf ../aiimages-backend.tar.gz .
-
-          # Upload to server
-          scp ../aiimages-backend.tar.gz ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }}:/tmp/
-
-          # Deploy
-          ssh ${{ secrets.DIGITALOCEAN_USER }}@${{ secrets.DIGITALOCEAN_HOST }} "
-            # Create deployment directory
-            mkdir -p /tmp/aiimages-backend-deploy
-
-            # Extract files
-            tar -xzf /tmp/aiimages-backend.tar.gz -C /tmp/aiimages-backend-deploy
-
-            # Ensure target directory exists
+      - name: Setup Server Environment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DIGITALOCEAN_HOST }}
+          username: ${{ secrets.DIGITALOCEAN_USER }}
+          key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+          debug: true
+          script: |
+            # Create deployment directories
             sudo mkdir -p /var/www/aiimages-backend
+            sudo mkdir -p /tmp/aiimages-backend-deploy
+            # Install PM2 if not present
+            sudo npm install -g pm2 || echo "PM2 already installed"
+            echo "✅ Server environment ready"
 
+      - name: Create Deployment Package
+        run: |
+          echo "=== CREATING DEPLOYMENT PACKAGE ==="
+          # Create deployment package excluding unnecessary files
+          tar -czf aiimages-backend.tar.gz \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='*.log' \
+            --exclude='.DS_Store' \
+            .
+          
+          echo "✅ Deployment package created"
+          ls -lh aiimages-backend.tar.gz
+
+      - name: 🚀 Deploy Package to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DIGITALOCEAN_HOST }}
+          username: ${{ secrets.DIGITALOCEAN_USER }}
+          key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+          source: "aiimages-backend.tar.gz"
+          target: "/tmp/"
+          overwrite: true
+          debug: true
+
+      - name: Extract and Install on Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DIGITALOCEAN_HOST }}
+          username: ${{ secrets.DIGITALOCEAN_USER }}
+          key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+          debug: true
+          script: |
+            echo "=== EXTRACTING DEPLOYMENT PACKAGE ==="
+            
+            # Clean deployment directory
+            rm -rf /tmp/aiimages-backend-deploy
+            mkdir -p /tmp/aiimages-backend-deploy
+            
+            # Extract deployment package
+            tar -xzf /tmp/aiimages-backend.tar.gz -C /tmp/aiimages-backend-deploy
+            
+            # Verify extraction
+            if [ -f "/tmp/aiimages-backend-deploy/package.json" ]; then
+              echo "✅ Package extracted successfully"
+              ls -la /tmp/aiimages-backend-deploy/ | head -10
+            else
+              echo "❌ Package extraction failed!"
+              exit 1
+            fi
+
+      - name: Deploy to Production Directory
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DIGITALOCEAN_HOST }}
+          username: ${{ secrets.DIGITALOCEAN_USER }}
+          key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+          debug: true
+          script: |
+            echo "=== DEPLOYING TO PRODUCTION ==="
+            
+            # Stop existing application
+            pm2 stop aiimages-backend-service || echo "Service not running"
+            pm2 delete aiimages-backend-service || echo "Service not found"
+            
             # Clear previous deployment
             sudo rm -rf /var/www/aiimages-backend/*
-
+            
             # Copy new files
             sudo cp -r /tmp/aiimages-backend-deploy/* /var/www/aiimages-backend/
-
-            # Always use the new .env file from the deployment package
-            sudo cp /tmp/aiimages-backend-deploy/.env /var/www/aiimages-backend/.env
-
-            # Set proper permissions
+            
+            # Set proper ownership
+            sudo chown -R ${{ secrets.DIGITALOCEAN_USER }}: /var/www/aiimages-backend
+            
+            # Set secure permissions for .env
             sudo chmod 600 /var/www/aiimages-backend/.env
+            sudo chmod 755 /var/www/aiimages-backend
+            
+            echo "✅ Files deployed to production directory"
 
-            # Change to application directory
+      - name: Install Dependencies and Start Application
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DIGITALOCEAN_HOST }}
+          username: ${{ secrets.DIGITALOCEAN_USER }}
+          key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+          debug: true
+          script: |
             cd /var/www/aiimages-backend
-
-            # Install production dependencies
-            npm ci --production
-
-            # Stop existing application instance
-            pm2 stop aiimages-backend-service || true
-            pm2 delete aiimages-backend-service || true
-
-            # Start new application instance with correct entry point
+            
+            echo "=== INSTALLING PRODUCTION DEPENDENCIES ==="
+            npm ci --production --ignore-scripts
+            
+            echo "=== STARTING APPLICATION ==="
+            # Start new application instance
             pm2 start src/index.js --name aiimages-backend-service
-
-            # Save PM2 configuration to survive reboots
+            
+            # Save PM2 configuration
             pm2 save
+            
+            # Setup PM2 startup (if not already done)
+            sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u ${{ secrets.DIGITALOCEAN_USER }} --hp /home/${{ secrets.DIGITALOCEAN_USER }} || echo "PM2 startup already configured"
 
-            # Clean up
+      - name: ✅ Verify Deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DIGITALOCEAN_HOST }}
+          username: ${{ secrets.DIGITALOCEAN_USER }}
+          key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+          debug: true
+          script: |
+            echo "=== DEPLOYMENT VERIFICATION ==="
+            
+            cd /var/www/aiimages-backend
+            
+            # Check if main files exist
+            [ -f "src/index.js" ] && echo "✅ Main application file exists" || echo "❌ Main application file missing"
+            [ -f "package.json" ] && echo "✅ package.json exists" || echo "❌ package.json missing"
+            [ -f ".env" ] && echo "✅ .env file exists" || echo "❌ .env file missing"
+            
+            # Check PM2 status
+            echo "=== APPLICATION STATUS ==="
+            pm2 status
+            
+            # Check if application is responding
+            sleep 5
+            if pm2 list | grep -q "aiimages-backend-service.*online"; then
+              echo "✅ Application is running successfully!"
+            else
+              echo "❌ Application failed to start!"
+              pm2 logs aiimages-backend-service --lines 10 --nostream
+              exit 1
+            fi
+
+      - name: Cleanup Temporary Files
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DIGITALOCEAN_HOST }}
+          username: ${{ secrets.DIGITALOCEAN_USER }}
+          key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+          debug: true
+          script: |
+            echo "=== CLEANING UP TEMPORARY FILES ==="
             rm -rf /tmp/aiimages-backend-deploy
-            rm /tmp/aiimages-backend.tar.gz
-          "
-      - name: Deployment status
-        run: echo "Deployment completed successfully!"
+            rm -f /tmp/aiimages-backend.tar.gz
+            echo "✅ Cleanup completed"
+
+      - name: 🎉 Deployment Success
+        run: |
+          echo "=== DEPLOYMENT COMPLETED SUCCESSFULLY ==="
+          echo "🚀 Backend application deployed and running!"
+          echo "📊 Check application status with: pm2 status"
+          echo "📝 View logs with: pm2 logs aiimages-backend-service"
