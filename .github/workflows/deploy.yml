@@ -142,6 +142,8 @@
 #       - name: Deployment status
 #         run: echo "Deployment completed successfully!"
 
+
+
 name: Deploy aiimages-backend
 
 on:
@@ -185,7 +187,7 @@ jobs:
           GEMINI_API_KEY8=${{ secrets.GEMINI_API_KEY8 }}
           GEMINI_API_KEY9=${{ secrets.GEMINI_API_KEY9 }}
           GEMINI_API_KEY10=${{ secrets.GEMINI_API_KEY10 }}
-          PORT=${{ secrets.PORT }}
+          APP_PORT=${{ secrets.PORT }}
           ELASTICSEARCH_URL=${{ secrets.ELASTICSEARCH_URL }}
           SPACES_KEY=${{ secrets.SPACES_KEY }}
           SPACES_SECRET=${{ secrets.SPACES_SECRET }}
@@ -239,6 +241,8 @@ jobs:
           username: ${{ secrets.DIGITALOCEAN_USER }}
           key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
           debug: true
+          timeout: 30s
+          command_timeout: 60s
           timeout: 30s
           command_timeout: 60s
           script: |
