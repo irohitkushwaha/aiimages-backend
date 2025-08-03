@@ -92,7 +92,7 @@ export const getHomepageImages = asyncHandler(async (req, res) => {
     .json(new ApiResponse(images, 200, "Images fetched successfully"));
 });
 
-// Controller: Get images by a single category (max 100)
+// Controller: Get imagees by a single category (max 100)
 export const getImagesByCategory = asyncHandler(async (req, res) => {
   // Accept category from query (?category=Business) or body (POST)
   const category = req.query.category || req.body.category;
