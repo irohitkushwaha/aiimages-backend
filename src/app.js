@@ -54,8 +54,7 @@ const server = http.createServer(app);
 
 app.use("/api/user", userRouter);
 app.use("/api/image", imageRouter);
-app.use("/api/pinterest", pinterestRouter); // Add Pinterest routes
-
+// app.use("/api/pinterest", pinterestRouter); 
 
 app.use(
   "/api/inngest",
