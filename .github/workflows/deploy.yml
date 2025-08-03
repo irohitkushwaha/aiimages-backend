@@ -241,8 +241,6 @@ jobs:
           debug: true
           timeout: 30s
           command_timeout: 60s
-          timeout: 30s
-          command_timeout: 60s
           script: |
             echo "=== SSH CONNECTION TEST ==="
             echo "✅ SSH connection successful!"
