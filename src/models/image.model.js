@@ -90,16 +90,7 @@ const ImageSchema = new Schema(
         type: Schema.Types.ObjectId,
         ref: "Image",
       },
-    ],
-    // isPinnedToPinterest: {
-    //   type: Boolean,
-    //   default: false,
-    //   index: true,
-    // },
-    // pinnedAt: {
-    //   type: Date,
-    //   index: true,
-    // },
+    ]
   },
   { timestamps: true }
 );

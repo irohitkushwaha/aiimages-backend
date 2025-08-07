@@ -5,6 +5,7 @@ import passport from "passport";
 import http from "http";
 import userRouter from "./routes/user.router.js";
 import imageRouter from "./routes/image.router.js";
+import searchrouter from "./routes/search.router.js";
 import { serve } from "inngest/express";
 import { inngest } from "./inngest/client.js";
 import { BulkAiImageGeneration } from "./inngest/functions/image-generation.js";
@@ -54,6 +55,7 @@ const server = http.createServer(app);
 
 app.use("/api/user", userRouter);
 app.use("/api/image", imageRouter);
+app.use("/api/search", searchrouter);
 // app.use("/api/pinterest", pinterestRouter); 
 
 app.use(
@@ -73,20 +75,33 @@ app.get("/api/start-automation", async function (req, res, next) {
   res.json({ message: "Event sent!" });
 });
 
-// const client = new Client({ node: process.env.ELASTICSEARCH_URL });
+import { Client } from "@elastic/elasticsearch";
+import {
+  createIndexes,
+  indexAllImages
+} from "./controllers/elasticsearch.controller.js";
+
+const client = new Client({
+  node: process.env.ELASTICSEARCH_URL,
+  tls: {
+    // This is necessary for connecting to a server with a self-signed certificate
+    rejectUnauthorized: false
+  }
+});
 
 const testElasticsearchConnection = async () => {
   try {
     const info = await client.info();
     console.log("Elasticsearch connected successfully:", info.name);
     await createIndexes();
-    await indexAllVideos();
+    await indexAllImages();
   } catch (error) {
     console.error("Elasticsearch connection error:", error);
   }
 };
 
-// testElasticsearchConnection();
+testElasticsearchConnection();
+
 
 // Global error handler - Add this to prevent server crashes
 app.use((err, req, res, next) => {
