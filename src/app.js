@@ -55,7 +55,7 @@ const server = http.createServer(app);
 
 app.use("/api/user", userRouter);
 app.use("/api/image", imageRouter);
-app.use("/api/search", searchrouter);
+app.use("/api", searchrouter);
 // app.use("/api/pinterest", pinterestRouter); 
 
 app.use(
