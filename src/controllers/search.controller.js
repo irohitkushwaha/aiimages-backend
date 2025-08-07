@@ -86,8 +86,8 @@ const searchAiImages = async (req, res) => {
 
     return res.status(200).json(
       new ApiResponse(
-        200,
         finalResults,
+        200,
         `Found ${finalResults.length} images matching "${keyword}"`
       )
     );
