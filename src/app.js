@@ -118,4 +118,4 @@ app.use((err, req, res, next) => {
 // Start Pinterest cron job
 // startPinterestCron();
 
-export { server }; //client also export
+export { server,client }; //client also export
